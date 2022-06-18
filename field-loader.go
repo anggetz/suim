@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/eaciit/toolkit"
+	"github.com/sebarcode/codekit"
 )
 
 func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
@@ -40,9 +40,12 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 	for i := 0; i < fieldNum; i++ {
 		ft := t.Field(i)
 		tag := ft.Tag
-		alias := tag.Get(toolkit.TagName())
+		alias := tag.Get(codekit.TagName())
 		if alias == "-" {
 			continue
+		}
+		if alias == "" {
+			alias = ft.Name
 		}
 
 		field, e := toField(ft)
@@ -51,6 +54,8 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		}
 		fields = append(fields, field)
 
+		//-- FormSetting
+		SetIfStruct(&fs, "IDField", fs.IDField == "" && TagExist(tag, "key"), alias)
 		SetIfStruct(&fs, "Title", fs.Title == "", TagValue(tag, "obj_title", t.Name()))
 		SetIfStruct(&fs, "ShowTitle", TagExist(tag, "form_show_title"), TagValue(tag, "form_show_title", "") == "1")
 		SetIfStruct(&fs, "ShowButtons", TagExist(tag, "form_show_buttons"), TagValue(tag, "form_show_buttons", "") == "1")
@@ -60,6 +65,9 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		SetIfStruct(&fs, "InitialMode", TagExist(tag, "form_initial_mode"), TagValue(tag, "form_initial_mode", "edit"))
 		SetIfStruct(&fs, "SubmitText", TagExist(tag, "form_submit_text"), TagValue(tag, "form_submit_text", "Save"))
 		SetIfStruct(&fs, "AutoCol", TagExist(tag, "form_auto_col"), DefInt(TagValue(tag, "form_auto_col", "1"), 1))
+
+		//-- GridSetting
+		SetIfStruct(&gs, "IDField", gs.IDField == "", TagValue(tag, "key", ""))
 	}
 
 	meta.Grid = gs
@@ -80,7 +88,7 @@ func toField(rt reflect.StructField) (Field, error) {
 
 	if f.FormElement == "show" {
 		form := FormField{}
-		form.Field = TagValue(tag, toolkit.TagName(), rt.Name)
+		form.Field = TagValue(tag, codekit.TagName(), rt.Name)
 		pos := strings.Split(TagValue(tag, "form_pos", ","), ",")
 		rowStr := DefTxt(pos[0], "0")
 		colStr := "0"

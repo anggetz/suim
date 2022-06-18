@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"git.kanosolution.net/kano/kaos"
+	"github.com/kanoteknologi/hd"
 )
 
 type mod struct{}
@@ -25,9 +26,11 @@ func (m *mod) MakeModelRoute(svc *kaos.Service, model *kaos.ServiceModel) ([]*ka
 	//-- form config
 	sr := new(kaos.ServiceRoute)
 	sr.Path = path.Join(svc.BasePoint(), model.Name, "formconfig")
-	sr.RequestType = reflect.PtrTo(reflect.SliceOf(model.ModelType))
-	sr.Fn = reflect.ValueOf(func(*kaos.Context, string) (interface{}, error) {
+	sr.Fn = reflect.ValueOf(func(c *kaos.Context, p string) (interface{}, error) {
 		cfg, e := CreateFormConfig(uiModel)
+		if e == nil && hd.IsHttpHandler(c) {
+			hd.SetContentType(c, "application/json")
+		}
 		return cfg, e
 	})
 	routes = append(routes, sr)
@@ -35,9 +38,11 @@ func (m *mod) MakeModelRoute(svc *kaos.Service, model *kaos.ServiceModel) ([]*ka
 	//-- grid config
 	sr = new(kaos.ServiceRoute)
 	sr.Path = path.Join(svc.BasePoint(), model.Name, "gridconfig")
-	sr.RequestType = reflect.PtrTo(reflect.SliceOf(model.ModelType))
-	sr.Fn = reflect.ValueOf(func(*kaos.Context, string) (interface{}, error) {
+	sr.Fn = reflect.ValueOf(func(c *kaos.Context, p string) (interface{}, error) {
 		cfg, e := CreateGridConfig(uiModel)
+		if e == nil && hd.IsHttpHandler(c) {
+			hd.SetContentType(c, "application/json")
+		}
 		return cfg, e
 	})
 	routes = append(routes, sr)

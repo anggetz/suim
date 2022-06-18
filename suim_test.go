@@ -54,7 +54,7 @@ func TestSuimForm(t *testing.T) {
 
 		convey.Convey("Check Sections", func() {
 			convey.So(len(cfg.Sections), convey.ShouldEqual, 2)
-			convey.So(len(cfg.Sections[0].Rows), convey.ShouldEqual, 3)
+			convey.So(len(cfg.Sections[0].Rows), convey.ShouldEqual, 4)
 
 			convey.Convey("Check Elements", func() {
 				convey.So(cfg.Sections[0].Rows[0][0].Label, convey.ShouldEqual, "Remember Me")
@@ -71,7 +71,7 @@ func TestSuimGrid(t *testing.T) {
 		convey.So(e, convey.ShouldBeNil)
 
 		convey.Convey("Check", func() {
-			convey.So(len(cfg.Fields), convey.ShouldEqual, 4)
+			convey.So(len(cfg.Fields), convey.ShouldEqual, 6)
 			convey.So(cfg.Fields[0].Label, convey.ShouldEqual, "Pin Code")
 		})
 	})

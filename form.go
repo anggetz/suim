@@ -44,6 +44,7 @@ type FormSection struct {
 }
 
 type FormSetting struct {
+	IDField          string
 	Title            string
 	ShowTitle        bool
 	InitialMode      string

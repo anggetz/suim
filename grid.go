@@ -12,6 +12,7 @@ type GridField struct {
 }
 
 type GridSetting struct {
+	IDField string
 }
 
 type GridConfig struct {
