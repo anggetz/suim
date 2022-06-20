@@ -1,21 +1,23 @@
 package suim
 
 type GridField struct {
-	Field      string
-	Label      string
-	Halign     string
-	Valign     string
-	LabelField string
-	Length     int
-	Width      string
-	Pos        int
+	Field      string `json:"field"`
+	Label      string `json:"label"`
+	Halign     string `json:"halign"`
+	Valign     string `json:"valign"`
+	LabelField string `json:"labelField"`
+	Length     int    `json:"length"`
+	Width      string `json:"width"`
+	Pos        int    `json:"pos"`
 }
 
 type GridSetting struct {
-	IDField string
+	IDField        string   `json:"idField"`
+	KeywordFields  []string `json:"keywordFields"`
+	SortableFields []string `json:"sortable"`
 }
 
 type GridConfig struct {
-	Setting GridSetting
-	Fields  []GridField
+	Setting GridSetting `json:"setting"`
+	Fields  []GridField `json:"fields"`
 }

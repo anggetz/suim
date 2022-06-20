@@ -28,10 +28,10 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 
 	fs := FormSetting{
 		ShowTitle:        false,
-		ShowButtons:      true,
-		ShowEditButton:   true,
-		ShowSubmitButton: true,
-		ShowCancelButton: true,
+		HideButtons:      false,
+		HideEditButton:   false,
+		HideSubmitButton: false,
+		HideCancelButton: false,
 		InitialMode:      "edit",
 		SubmitText:       "Save",
 		AutoCol:          1,
@@ -56,18 +56,24 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 
 		//-- FormSetting
 		SetIfStruct(&fs, "IDField", fs.IDField == "" && TagExist(tag, "key"), alias)
-		SetIfStruct(&fs, "Title", fs.Title == "", TagValue(tag, "obj_title", t.Name()))
-		SetIfStruct(&fs, "ShowTitle", TagExist(tag, "form_show_title"), TagValue(tag, "form_show_title", "") == "1")
-		SetIfStruct(&fs, "ShowButtons", TagExist(tag, "form_show_buttons"), TagValue(tag, "form_show_buttons", "") == "1")
-		SetIfStruct(&fs, "ShowEditButtons", TagExist(tag, "form_show_edit_buttons"), TagValue(tag, "form_show_edit_buttons", "") == "1")
-		SetIfStruct(&fs, "ShowSubmitButtons", TagExist(tag, "form_show_submi_buttons"), TagValue(tag, "form_show_submit_buttons", "") == "1")
-		SetIfStruct(&fs, "ShowCancelButtons", TagExist(tag, "form_show_cancel_buttons"), TagValue(tag, "form_show_cancel_buttons", "") == "1")
+		SetIfStruct(&fs, "Title", fs.Title == "", Label(TagValue(tag, "obj_title", t.Name()), ""))
+		SetIfStruct(&fs, "ShowTitle", TagExist(tag, "form_hide_title"), TagValue(tag, "form_hide_title", "") == "1")
+		SetIfStruct(&fs, "HideButtons", TagExist(tag, "form_hide_buttons"), TagValue(tag, "form_hide_buttons", "") == "1")
+		SetIfStruct(&fs, "HideEditButton", TagExist(tag, "form_hide_edit_button"), TagValue(tag, "form_hide_edit_button", "") == "1")
+		SetIfStruct(&fs, "HideSubmitButton", TagExist(tag, "form_hide_submit_button"), TagValue(tag, "form_hide_submit_button", "") == "1")
+		SetIfStruct(&fs, "HideCancelButton", TagExist(tag, "form_hide_cancel_button"), TagValue(tag, "form_hide_cancel_button", "") == "1")
 		SetIfStruct(&fs, "InitialMode", TagExist(tag, "form_initial_mode"), TagValue(tag, "form_initial_mode", "edit"))
 		SetIfStruct(&fs, "SubmitText", TagExist(tag, "form_submit_text"), TagValue(tag, "form_submit_text", "Save"))
 		SetIfStruct(&fs, "AutoCol", TagExist(tag, "form_auto_col"), DefInt(TagValue(tag, "form_auto_col", "1"), 1))
 
 		//-- GridSetting
 		SetIfStruct(&gs, "IDField", gs.IDField == "", TagValue(tag, "key", ""))
+		if TagValue(tag, "grid_keyword", "0") == "1" {
+			gs.KeywordFields = append(gs.KeywordFields, alias)
+		}
+		if TagValue(tag, "grid_sortable", "0") == "1" {
+			gs.SortableFields = append(gs.SortableFields, alias)
+		}
 	}
 
 	meta.Grid = gs
@@ -86,7 +92,7 @@ func toField(rt reflect.StructField) (Field, error) {
 	f.GridElement = TagValue(tag, "grid", "show")
 	f.FormElement = TagValue(tag, "form", "show")
 
-	if f.FormElement == "show" {
+	if f.FormElement != "hide" {
 		form := FormField{}
 		form.Field = TagValue(tag, codekit.TagName(), rt.Name)
 		pos := strings.Split(TagValue(tag, "form_pos", ","), ",")
@@ -98,17 +104,17 @@ func toField(rt reflect.StructField) (Field, error) {
 		form.Row, _ = strconv.Atoi(rowStr)
 		form.Col, _ = strconv.Atoi(colStr)
 		form.Section = TagValue(tag, "form_section", "General")
-		form.Control = TagValue(tag, "form_control", "")
-		if form.Control == "" {
+		form.Kind = TagValue(tag, "form_kind", "")
+		if form.Kind == "" {
 			switch f.DataType {
 			case "int":
-				form.Control = "number"
+				form.Kind = "number"
 			case "time.Time", "*time.Time":
-				form.Control = "date"
+				form.Kind = "date"
 			case "bool":
-				form.Control = "checkbox"
+				form.Kind = "checkbox"
 			default:
-				form.Control = "text"
+				form.Kind = "text"
 			}
 		}
 		form.Disable = TagExist(tag, "form_disable")
@@ -128,7 +134,8 @@ func toField(rt reflect.StructField) (Field, error) {
 				form.Items = append(form.Items, FormListItem{Key: parts[0], Text: parts[0]})
 			}
 		}
-		form.Label = TagValue(tag, "form_label", TagValue(tag, "label", Label(rt.Name, "")))
+		form.LabelField = TagValue(tag, "obj_label_field", "")
+		form.Label = TagValue(tag, "form_label", TagValue(tag, "label", Label(rt.Name, "l")))
 		form.UseList = len(form.Items) > 0 || TagExist(tag, "form_use_list")
 		if form.UseList && len(items) == 0 {
 			lookups := strings.Split(TagValue(tag, "form_lookup", ""), "|")
@@ -136,9 +143,15 @@ func toField(rt reflect.StructField) (Field, error) {
 				return f, errors.New("lookup should contains at least 2 elements: url and fieldof key")
 			}
 			form.LookupKey = lookups[1]
-			form.LookupTxt = lookups[1]
+			form.LookupLabelFields = []string{form.LookupKey}
 			if len(lookups) > 2 {
-				form.LookupTxt = lookups[2]
+				form.LookupLabelFields = SplitNonEmpty(lookups[2], ",")
+			}
+
+			if len(lookups) > 3 {
+				form.LookupSearchFields = SplitNonEmpty(lookups[3], ",")
+			} else {
+				form.LookupSearchFields = form.LookupLabelFields
 			}
 		}
 		form.Placeholder = TagValue(tag, "form_placeholder", form.Label)
@@ -146,9 +159,10 @@ func toField(rt reflect.StructField) (Field, error) {
 		form.MinLength = DefInt(DefSliceItem(lengths, 0, "0"), 0)
 		form.MaxLength = DefInt(DefSliceItem(lengths, 1, "999"), 999)
 		form.Required = TagExist(tag, "form_required")
-		form.ShowDetail = TagExist(tag, "form_show_detail")
-		form.ShowHint = TagExist(tag, "form_show_hint")
-		form.ShowTitle = TagExist(tag, "form_show_title")
+		form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
+		form.ShowDetail = TagExist(tag, "form_hide_detail")
+		form.ShowHint = TagExist(tag, "form_hide_hint")
+		form.ShowTitle = TagExist(tag, "form_hide_title")
 		f.Form = form
 	}
 
@@ -157,8 +171,8 @@ func toField(rt reflect.StructField) (Field, error) {
 		grid.Field = f.Form.Field
 		grid.Halign = TagValue(tag, "grid_halign", "start")
 		grid.Valign = TagValue(tag, "grid_valign", "start")
-		grid.Label = TagValue(tag, "grid_label", TagValue(tag, "label", Label(rt.Name, "")))
-		grid.LabelField = TagValue(tag, "grid_label_field", "")
+		grid.Label = TagValue(tag, "grid_label", TagValue(tag, "label", Label(rt.Name, "l")))
+		grid.LabelField = TagValue(tag, "obj_label_field", "")
 		grid.Length = DefInt(TagValue(tag, "grid_length", "0"), 0)
 		grid.Pos = DefInt(TagValue(tag, "grid_pos", "0"), 0)
 		grid.Width = TagValue(tag, "width", "")

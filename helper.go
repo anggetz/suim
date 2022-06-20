@@ -7,10 +7,22 @@ import (
 )
 
 func Label(name, kind string) string {
-	texts := strings.Split(name, "_")
+	if name == "ID" || name == "_id" {
+		return name
+	}
+	IDs := strings.Split(name, "ID")
 	words := []string{}
-	for idx, text := range texts {
-		words = append(words, labelWord(text, kind, idx == 0)...)
+	for idIndex, idText := range IDs {
+		if idIndex > 0 {
+			words = append(words, "ID")
+		}
+		if idText == "" {
+			continue
+		}
+		texts := strings.Split(idText, "_")
+		for idx, text := range texts {
+			words = append(words, labelWord(text, kind, idx == 0)...)
+		}
 	}
 	return strings.Join(words, " ")
 }
@@ -145,4 +157,15 @@ func SetIf(obj interface{}, change bool, val interface{}) {
 		//target = val
 		rv.Set(reflect.ValueOf(val))
 	}
+}
+
+func SplitNonEmpty(txt, splitter string) []string {
+	parts := strings.Split(txt, splitter)
+	res := []string{}
+	for _, p := range parts {
+		if p != "" {
+			res = append(res, p)
+		}
+	}
+	return res
 }

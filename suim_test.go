@@ -17,6 +17,10 @@ func TestLabel(t *testing.T) {
 		"EmailAddress": {Kind: "l", Result: "Email address"},
 		"FamilyName":   {Kind: "u", Result: "FAMILY NAME"},
 		"First_Name":   {Kind: "l", Result: "First name"},
+		"RememberMe":   {Kind: "", Result: "Remember Me"},
+		"EmailID":      {Kind: "", Result: "Email ID"},
+		"_id":          {Kind: "", Result: "_id"},
+		"ID":           {Kind: "", Result: "ID"},
 	}
 
 	for k, d := range data {
@@ -58,8 +62,8 @@ func TestSuimForm(t *testing.T) {
 
 			convey.Convey("Check Elements", func() {
 				convey.So(cfg.Sections[0].Rows[0][0].Label, convey.ShouldEqual, "Remember Me")
-				convey.So(cfg.Sections[0].Rows[0][0].Control, convey.ShouldEqual, "checkbox")
-				convey.So(cfg.Sections[0].Rows[2][0].Control, convey.ShouldEqual, "password")
+				convey.So(cfg.Sections[0].Rows[0][0].Kind, convey.ShouldEqual, "checkbox")
+				convey.So(cfg.Sections[0].Rows[2][0].Kind, convey.ShouldEqual, "password")
 			})
 		})
 	})
