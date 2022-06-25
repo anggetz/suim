@@ -81,13 +81,17 @@ func TestSuimGrid(t *testing.T) {
 	})
 }
 
+func TestValidate(t *testing.T) {
+
+}
+
 type LoginModel struct {
 	LoginId    string   `form_required:"1" form_length:"5,8"`
 	Password   string   `form_required:"1" form_control:"password"`
 	RememberMe bool     `form_pos:"1,1"`
 	PinCode    int      `form_section:"Setting" grid_pos:"1"`
 	Data       []string `form_section:"Setting" grid:"hide"`
-	Company    string   `form_use_list:"1" form_lookup:"/api/company/find|_id|Name"`
+	Company    string   `form_use_list:"1" form_use_list:"1" form_items:"C1|C2|C3"`
 	Timeout    string   `form_use_list:"1" form_items:"30s|1m|5m|30m|60m|6h|12h"`
 }
 

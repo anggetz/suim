@@ -10,9 +10,16 @@ import (
 	"github.com/sebarcode/codekit"
 )
 
+type objConfig struct {
+	Obj    *ObjMeta
+	Fields []Field
+}
+
+var (
+	objConfigs = map[string]objConfig{}
+)
+
 func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
-	fields := []Field{}
-	meta := new(ObjMeta)
 
 	v := reflect.ValueOf(obj)
 	if v.Kind() == reflect.Ptr {
@@ -22,7 +29,16 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		return nil, []Field{}, errors.New("object should be a struct or pointer of a struct")
 	}
 	t := v.Type()
+
+	// if already inside repo then get from them
+	if res, has := objConfigs[t.String()]; has {
+		return res.Obj, res.Fields, nil
+	}
+
+	// if not processing it and save into memory repo at the end
 	fieldNum := v.NumField()
+	fields := []Field{}
+	meta := new(ObjMeta)
 
 	gs := GridSetting{}
 
@@ -74,11 +90,21 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		if TagValue(tag, "grid_sortable", "0") == "1" {
 			gs.SortableFields = append(gs.SortableFields, alias)
 		}
+
+		//-- main obj
+		SetIfStruct(meta, "GoCustomValidator", meta.GoCustomValidator == "" && TagValue(tag, "obj_go_validator", "") != "", tag.Get("obj_go_validator"))
 	}
 
+	if len(gs.KeywordFields) == 0 {
+		gs.KeywordFields = []string{"_id", "Name"}
+	}
+	if len(gs.SortableFields) == 0 {
+		gs.SortableFields = []string{"_id"}
+	}
 	meta.Grid = gs
 	meta.Form = fs
 
+	objConfigs[t.String()] = objConfig{Obj: meta, Fields: fields}
 	return meta, fields, nil
 }
 
@@ -107,7 +133,7 @@ func toField(rt reflect.StructField) (Field, error) {
 		form.Kind = TagValue(tag, "form_kind", "")
 		if form.Kind == "" {
 			switch f.DataType {
-			case "int":
+			case "int", "float32", "float64":
 				form.Kind = "number"
 			case "time.Time", "*time.Time":
 				form.Kind = "date"
@@ -137,27 +163,33 @@ func toField(rt reflect.StructField) (Field, error) {
 		form.LabelField = TagValue(tag, "obj_label_field", "")
 		form.Label = TagValue(tag, "form_label", TagValue(tag, "label", Label(rt.Name, "l")))
 		form.UseList = len(form.Items) > 0 || TagExist(tag, "form_use_list")
-		if form.UseList && len(items) == 0 {
+		if TagValue(tag, "form_lookup", "") != "" {
+			form.UseList = true
+			form.UseLookup = true
 			lookups := strings.Split(TagValue(tag, "form_lookup", ""), "|")
 			if len(lookups) < 2 {
 				return f, errors.New("lookup should contains at least 2 elements: url and fieldof key")
 			}
+			if lookups[0] == "" {
+				return f, errors.New("lookup url can not be blank")
+			}
+			form.LookupUrl = lookups[0]
 			form.LookupKey = lookups[1]
-			form.LookupLabelFields = []string{form.LookupKey}
+			form.LookupLabels = []string{form.LookupKey}
 			if len(lookups) > 2 {
-				form.LookupLabelFields = SplitNonEmpty(lookups[2], ",")
+				form.LookupLabels = SplitNonEmpty(lookups[2], ",")
 			}
 
 			if len(lookups) > 3 {
-				form.LookupSearchFields = SplitNonEmpty(lookups[3], ",")
+				form.LookupSearchs = SplitNonEmpty(lookups[3], ",")
 			} else {
-				form.LookupSearchFields = form.LookupLabelFields
+				form.LookupSearchs = form.LookupLabels
 			}
 		}
 		form.Placeholder = TagValue(tag, "form_placeholder", form.Label)
 		lengths := strings.Split(TagValue(tag, "form_length", "0,999"), ",")
 		form.MinLength = DefInt(DefSliceItem(lengths, 0, "0"), 0)
-		form.MaxLength = DefInt(DefSliceItem(lengths, 1, "999"), 999)
+		form.MaxLength = DefInt(DefSliceItem(lengths, 1, "9999"), 9999)
 		form.Required = TagExist(tag, "form_required")
 		form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
 		form.ShowDetail = TagExist(tag, "form_hide_detail")

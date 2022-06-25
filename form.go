@@ -1,8 +1,8 @@
 package suim
 
 type FormListItem struct {
-	Key  string
-	Text string
+	Key  string `json:"key"`
+	Text string `json:"text"`
 }
 
 type FormField struct {
@@ -20,11 +20,11 @@ type FormField struct {
 	UseList bool           `json:"useList"`
 	Items   []FormListItem `json:"items"`
 
-	UseLookup          bool     `json:"useLookup"`
-	LookupURL          string   `json:"lookupURL"`
-	LookupKey          string   `json:"lookupKey"`
-	LookupLabelFields  []string `json:"lookupLabelFields"`
-	LookupSearchFields []string `json:"lookupSearchFields"`
+	UseLookup     bool     `json:"useLookup"`
+	LookupUrl     string   `json:"lookupUrl"`
+	LookupKey     string   `json:"lookupKey"`
+	LookupLabels  []string `json:"lookupLabels"`
+	LookupSearchs []string `json:"lookupSearchs"`
 
 	ShowTitle  bool `json:"showTitle"`
 	ShowHint   bool `json:"showHint"`

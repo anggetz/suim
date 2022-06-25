@@ -1,6 +1,7 @@
 package suim
 
 import (
+	"fmt"
 	"reflect"
 
 	"errors"
@@ -52,7 +53,10 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 
 	//-- assign auto section if no section found
 	if len(cfg.Sections) == 0 {
-		cfg.Sections = []FormSection{{Title: "General", ShowTitle: false, AutoCol: cfg.Setting.AutoCol}}
+		//cfg.Sections = []FormSection{{Title: "General", ShowTitle: false, AutoCol: cfg.Setting.AutoCol}}
+		if cfg.Sections, err = autoFormSections(obj); err != nil {
+			return nil, fmt.Errorf("error generating section. %s", err.Error())
+		}
 	}
 
 	//-- filter shown field only
