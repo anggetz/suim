@@ -41,7 +41,7 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
-					err = errors.New(r.(string))
+					err = errors.New("error generating sections. " + r.(string))
 				}
 			}()
 			cfg.Sections = outs[0].Interface().([]FormSection)

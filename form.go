@@ -9,16 +9,19 @@ type FormField struct {
 	Field       string `json:"field"`
 	Label       string `json:"label"`
 	Hint        string `json:"hint"`
+	Hide        bool   `json:"hide"`
 	Placeholder string `json:"placeHolder"`
 	Kind        string `json:"kind"`
 	Disable     bool   `json:"disable"`
 	Required    bool   `json:"required"`
+	Multiple    bool   `json:"multiple"`
 	MinLength   int    `json:"minLength"`
 	MaxLength   int    `json:"maxLength"`
 	ReadOnly    bool   `json:"readOnly"`
 
-	UseList bool           `json:"useList"`
-	Items   []FormListItem `json:"items"`
+	UseList  bool           `json:"useList"`
+	AllowAdd bool           `json:"allowAdd"`
+	Items    []FormListItem `json:"items"`
 
 	UseLookup     bool     `json:"useLookup"`
 	LookupUrl     string   `json:"lookupUrl"`

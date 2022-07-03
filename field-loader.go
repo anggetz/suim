@@ -111,92 +111,98 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 func toField(rt reflect.StructField) (Field, error) {
 	f := Field{}
 	f.Field = rt.Name
-	f.DataType = rt.Type.Name()
+	f.DataType = rt.Type.String()
 
 	tag := rt.Tag
 
 	f.GridElement = TagValue(tag, "grid", "show")
 	f.FormElement = TagValue(tag, "form", "show")
 
-	if f.FormElement != "hide" {
-		form := FormField{}
-		form.Field = TagValue(tag, codekit.TagName(), rt.Name)
-		pos := strings.Split(TagValue(tag, "form_pos", ","), ",")
-		rowStr := DefTxt(pos[0], "0")
-		colStr := "0"
-		if len(pos) > 1 {
-			colStr = DefTxt(pos[1], "0")
-		}
-		form.Row, _ = strconv.Atoi(rowStr)
-		form.Col, _ = strconv.Atoi(colStr)
-		form.Section = TagValue(tag, "form_section", "General")
-		form.Kind = TagValue(tag, "form_kind", "")
-		if form.Kind == "" {
-			switch f.DataType {
-			case "int", "float32", "float64":
-				form.Kind = "number"
-			case "time.Time", "*time.Time":
-				form.Kind = "date"
-			case "bool":
-				form.Kind = "checkbox"
-			default:
-				form.Kind = "text"
-			}
-		}
-		form.Disable = TagExist(tag, "form_disable")
-		form.FixDetail = TagExist(tag, "form_fix_detail")
-		form.FixTitle = TagExist(tag, "form_fix_title")
-		form.Hint = TagValue(tag, "form_hint", "")
-		items := strings.Split(TagValue(tag, "form_items", ""), "|")
-		form.Items = []FormListItem{}
-		for _, item := range items {
-			parts := strings.Split(item, ":")
-			if parts[0] == "" {
-				continue
-			}
-			if len(parts) > 1 {
-				form.Items = append(form.Items, FormListItem{Key: parts[0], Text: parts[1]})
-			} else if len(parts) == 1 {
-				form.Items = append(form.Items, FormListItem{Key: parts[0], Text: parts[0]})
-			}
-		}
-		form.LabelField = TagValue(tag, "obj_label_field", "")
-		form.Label = TagValue(tag, "form_label", TagValue(tag, "label", Label(rt.Name, "l")))
-		form.UseList = len(form.Items) > 0 || TagExist(tag, "form_use_list")
-		if TagValue(tag, "form_lookup", "") != "" {
-			form.UseList = true
-			form.UseLookup = true
-			lookups := strings.Split(TagValue(tag, "form_lookup", ""), "|")
-			if len(lookups) < 2 {
-				return f, errors.New("lookup should contains at least 2 elements: url and fieldof key")
-			}
-			if lookups[0] == "" {
-				return f, errors.New("lookup url can not be blank")
-			}
-			form.LookupUrl = lookups[0]
-			form.LookupKey = lookups[1]
-			form.LookupLabels = []string{form.LookupKey}
-			if len(lookups) > 2 {
-				form.LookupLabels = SplitNonEmpty(lookups[2], ",")
-			}
-
-			if len(lookups) > 3 {
-				form.LookupSearchs = SplitNonEmpty(lookups[3], ",")
-			} else {
-				form.LookupSearchs = form.LookupLabels
-			}
-		}
-		form.Placeholder = TagValue(tag, "form_placeholder", form.Label)
-		lengths := strings.Split(TagValue(tag, "form_length", "0,999"), ",")
-		form.MinLength = DefInt(DefSliceItem(lengths, 0, "0"), 0)
-		form.MaxLength = DefInt(DefSliceItem(lengths, 1, "9999"), 9999)
-		form.Required = TagExist(tag, "form_required")
-		form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
-		form.ShowDetail = TagExist(tag, "form_hide_detail")
-		form.ShowHint = TagExist(tag, "form_hide_hint")
-		form.ShowTitle = TagExist(tag, "form_hide_title")
-		f.Form = form
+	//if f.FormElement != "hide" {
+	form := FormField{}
+	form.AllowAdd = TagValue(tag, "form_allow_add", "") == "1"
+	form.Field = TagValue(tag, codekit.TagName(), rt.Name)
+	form.Hide = f.FormElement != "show"
+	pos := strings.Split(TagValue(tag, "form_pos", ","), ",")
+	rowStr := DefTxt(pos[0], "0")
+	colStr := "0"
+	if len(pos) > 1 {
+		colStr = DefTxt(pos[1], "0")
 	}
+	form.Row, _ = strconv.Atoi(rowStr)
+	form.Col, _ = strconv.Atoi(colStr)
+	form.Section = TagValue(tag, "form_section", "General")
+	form.Kind = TagValue(tag, "form_kind", "")
+	if form.Kind == "" {
+		//fmt.Println(f.Field, form.Kind, f.DataType)
+		switch f.DataType {
+		case "int", "float32", "float64":
+			form.Kind = "number"
+		case "time.Time", "*time.Time":
+			form.Kind = "date"
+		case "bool":
+			form.Kind = "checkbox"
+		case "[]string":
+			form.Multiple = true
+		default:
+			form.Kind = "text"
+		}
+	}
+	form.Disable = TagExist(tag, "form_disable")
+	form.FixDetail = TagExist(tag, "form_fix_detail")
+	form.FixTitle = TagExist(tag, "form_fix_title")
+	form.Hint = TagValue(tag, "form_hint", "")
+	items := strings.Split(TagValue(tag, "form_items", ""), "|")
+	form.Items = []FormListItem{}
+	for _, item := range items {
+		parts := strings.Split(item, ":")
+		if parts[0] == "" {
+			continue
+		}
+		if len(parts) > 1 {
+			form.Items = append(form.Items, FormListItem{Key: parts[0], Text: parts[1]})
+		} else if len(parts) == 1 {
+			form.Items = append(form.Items, FormListItem{Key: parts[0], Text: parts[0]})
+		}
+	}
+	form.LabelField = TagValue(tag, "obj_label_field", "")
+	form.Label = TagValue(tag, "form_label", TagValue(tag, "label", Label(rt.Name, "l")))
+	SetIfStruct(form, "Multiple", !form.Multiple && TagExist(tag, "form_multiple"), TagValue(tag, "form_multiple", "") == "1")
+	form.UseList = len(form.Items) > 0 || TagExist(tag, "form_use_list")
+	if TagValue(tag, "form_lookup", "") != "" {
+		form.UseList = true
+		form.UseLookup = true
+		lookups := strings.Split(TagValue(tag, "form_lookup", ""), "|")
+		if len(lookups) < 2 {
+			return f, errors.New("lookup should contains at least 2 elements: url and fieldof key")
+		}
+		if lookups[0] == "" {
+			return f, errors.New("lookup url can not be blank")
+		}
+		form.LookupUrl = lookups[0]
+		form.LookupKey = lookups[1]
+		form.LookupLabels = []string{form.LookupKey}
+		if len(lookups) > 2 {
+			form.LookupLabels = SplitNonEmpty(lookups[2], ",")
+		}
+
+		if len(lookups) > 3 {
+			form.LookupSearchs = SplitNonEmpty(lookups[3], ",")
+		} else {
+			form.LookupSearchs = form.LookupLabels
+		}
+	}
+	form.Placeholder = TagValue(tag, "form_placeholder", form.Label)
+	lengths := strings.Split(TagValue(tag, "form_length", "0,999"), ",")
+	form.MinLength = DefInt(DefSliceItem(lengths, 0, "0"), 0)
+	form.MaxLength = DefInt(DefSliceItem(lengths, 1, "9999"), 9999)
+	form.Required = TagExist(tag, "form_required")
+	form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
+	form.ShowDetail = TagExist(tag, "form_hide_detail")
+	form.ShowHint = TagExist(tag, "form_hide_hint")
+	form.ShowTitle = TagExist(tag, "form_hide_title")
+	f.Form = form
+	//}
 
 	if f.GridElement != "hide" {
 		grid := GridField{}
