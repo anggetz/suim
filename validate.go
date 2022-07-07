@@ -9,6 +9,8 @@ import (
 	"github.com/sebarcode/codekit"
 )
 
+var GoCustomValidator string
+
 func Validate(obj interface{}) error {
 	objMeta, fields, err := ObjToFields(obj)
 	if err != nil {
@@ -67,7 +69,7 @@ func validateField(obj interface{}, fm Field) error {
 			}
 		}
 
-		if len(objStr) > 0 {
+		if fm.Form.MaxLength > 0 && len(objStr) > fm.Form.MaxLength {
 			return fmt.Errorf("max length is %d", fm.Form.MaxLength)
 		}
 

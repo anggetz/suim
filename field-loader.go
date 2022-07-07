@@ -92,7 +92,7 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		}
 
 		//-- main obj
-		SetIfStruct(meta, "GoCustomValidator", meta.GoCustomValidator == "" && TagValue(tag, "obj_go_validator", "") != "", tag.Get("obj_go_validator"))
+		SetIfStruct(meta, "GoCustomValidator", meta.GoCustomValidator == "", TagValue(tag, "obj_go_validator", GoCustomValidator))
 	}
 
 	if len(gs.KeywordFields) == 0 {
