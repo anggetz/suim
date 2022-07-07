@@ -58,11 +58,11 @@ func validateField(obj interface{}, fm Field) error {
 		}
 		//isMap := rvElem.Kind() == reflect.Map
 
-		if fm.Form.Required && rvElem.IsZero() {
+		objStr := codekit.ToString(rvElem.Interface())
+		if (fm.Form.Required && rvElem.IsZero()) || objStr == "" {
 			return errors.New("could not be nil or empty")
 		}
 
-		objStr := codekit.ToString(obj)
 		if fm.Form.MinLength > 0 {
 			if len(objStr) < fm.Form.MinLength {
 				return fmt.Errorf("min length is %d", fm.Form.MinLength)
