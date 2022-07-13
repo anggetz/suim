@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/sebarcode/codekit"
 )
 
 var GoCustomValidator string
@@ -50,49 +48,56 @@ func Validate(obj interface{}) error {
 func validateField(obj interface{}, fm Field) error {
 	v, has := getValue(obj, fm.Field)
 	if has {
-		rvMain := reflect.ValueOf(v)
-		isPtr := rvMain.Kind() == reflect.Ptr
-		rvElem := rvMain
-		if isPtr {
-			rvElem = rvMain.Elem()
-		}
-		//isMap := rvElem.Kind() == reflect.Map
-
-		objStr := codekit.ToString(rvElem.Interface())
-		if (fm.Form.Required && rvElem.IsZero()) || objStr == "" {
-			return errors.New("could not be nil or empty")
-		}
-
-		if fm.Form.MinLength > 0 {
-			if len(objStr) < fm.Form.MinLength {
-				return fmt.Errorf("min length is %d", fm.Form.MinLength)
+		/*
+			rvMain := reflect.ValueOf(v)
+			isPtr := rvMain.Kind() == reflect.Ptr
+			rvElem := rvMain
+			if isPtr {
+				rvElem = rvMain.Elem()
 			}
-		}
+		*/
 
-		if fm.Form.MaxLength > 0 && len(objStr) > fm.Form.MaxLength {
-			return fmt.Errorf("max length is %d", fm.Form.MaxLength)
-		}
+		switch fm.DataType {
+		case "string":
+			objStr := v.String()
+			if objStr == "" && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
 
-		// useList and not using lookup
-		if fm.Form.UseList && fm.Form.LookupUrl == "" {
-			found := false
-		itemLoop:
-			for _, item := range fm.Form.Items {
-				if item.Text == objStr {
-					found = true
-					break itemLoop
+			if fm.Form.MinLength > 0 {
+				if len(objStr) < fm.Form.MinLength {
+					return fmt.Errorf("min length is %d", fm.Form.MinLength)
 				}
 			}
 
-			if !found {
-				return fmt.Errorf("")
+			if fm.Form.MaxLength > 0 && len(objStr) > fm.Form.MaxLength {
+				return fmt.Errorf("max length is %d", fm.Form.MaxLength)
 			}
+
+			// useList and not using lookup
+			if fm.Form.UseList && fm.Form.LookupUrl == "" {
+				found := false
+			itemLoop:
+				for _, item := range fm.Form.Items {
+					if item.Text == objStr {
+						found = true
+						break itemLoop
+					}
+				}
+
+				if !found {
+					return fmt.Errorf("")
+				}
+			}
+
+		default:
+			//-- do nothing
 		}
 	}
 	return nil
 }
 
-func getValue(obj interface{}, name string) (interface{}, bool) {
+func getValue(obj interface{}, name string) (reflect.Value, bool) {
 	rv := reflect.Indirect(reflect.ValueOf(obj))
 
 	if rv.Kind() == reflect.Struct {
@@ -102,5 +107,5 @@ func getValue(obj interface{}, name string) (interface{}, bool) {
 		return rv.MapIndex(reflect.ValueOf(name)), true
 	}
 
-	return nil, false
+	return reflect.Value{}, false
 }
