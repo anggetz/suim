@@ -9,6 +9,7 @@ type GridField struct {
 	Length     int    `json:"length"`
 	Width      string `json:"width"`
 	Pos        int    `json:"pos"`
+	ReadType   string `json:"readType"`
 }
 
 type GridSetting struct {

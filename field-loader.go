@@ -216,6 +216,7 @@ func toField(rt reflect.StructField) (Field, error) {
 		grid.Length = DefInt(TagValue(tag, "grid_length", "0"), 0)
 		grid.Pos = DefInt(TagValue(tag, "grid_pos", "0"), 0)
 		grid.Width = TagValue(tag, "width", "")
+		grid.ReadType = f.GridElement
 		f.Grid = grid
 	}
 
