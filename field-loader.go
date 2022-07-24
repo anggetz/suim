@@ -198,6 +198,8 @@ func toField(rt reflect.StructField) (Field, error) {
 	form.MaxLength = DefInt(DefSliceItem(lengths, 1, "9999"), 9999)
 	form.Required = TagExist(tag, "form_required")
 	form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
+	form.ReadOnlyOnEdit = TagValue(tag, "form_read_only_edit", "0") == "1"
+	form.ReadOnlyOnNew = TagValue(tag, "form_read_only_new", "0") == "1"
 	form.ShowDetail = TagExist(tag, "form_hide_detail")
 	form.ShowHint = TagExist(tag, "form_hide_hint")
 	form.ShowTitle = TagExist(tag, "form_hide_title")
