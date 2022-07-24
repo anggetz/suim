@@ -83,7 +83,7 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		SetIfStruct(&fs, "AutoCol", TagExist(tag, "form_auto_col"), DefInt(TagValue(tag, "form_auto_col", "1"), 1))
 
 		//-- GridSetting
-		SetIfStruct(&gs, "IDField", gs.IDField == "", TagValue(tag, "key", ""))
+		SetIfStruct(&gs, "IDField", gs.IDField == "" && TagValue(tag, "key", "") == "1", alias)
 		if TagValue(tag, "grid_keyword", "0") == "1" {
 			gs.KeywordFields = append(gs.KeywordFields, alias)
 		}
