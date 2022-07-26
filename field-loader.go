@@ -30,12 +30,9 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 	t := v.Type()
 
 	// if already inside repo then get from them
-	mtx.RLock()
 	if res, has := objConfigs[t.String()]; has {
-		mtx.RUnlock()
 		return res.Obj, res.Fields, nil
 	}
-	mtx.RUnlock()
 
 	// if not processing it and save into memory repo at the end
 	fieldNum := v.NumField()
@@ -106,6 +103,8 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 	meta.Grid = gs
 	meta.Form = fs
 
+	mtx.Lock()
+	defer mtx.Unlock()
 	objConfigs[t.String()] = objConfig{Obj: meta, Fields: fields}
 	return meta, fields, nil
 }

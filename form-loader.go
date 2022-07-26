@@ -127,6 +127,8 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 		cfg.Sections[idx] = section
 	}
 
+	mtx.Lock()
+	defer mtx.Unlock()
 	formConfigs[cfgName] = cfg
 	return cfg, nil
 }
