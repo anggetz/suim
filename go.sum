@@ -61,8 +61,9 @@ git.kanosolution.net/kano/appkit v0.0.3/go.mod h1:R9lSLmv987MZYIcmW5QRFySaEGASi/
 git.kanosolution.net/kano/dbflex v1.0.11/go.mod h1:JwhKlws6r/uBbPE126aJpHbq3x4iugF0ViJlE/fFg/k=
 git.kanosolution.net/kano/dbflex v1.0.12/go.mod h1:JwhKlws6r/uBbPE126aJpHbq3x4iugF0ViJlE/fFg/k=
 git.kanosolution.net/kano/dbflex v1.1.0/go.mod h1:3YZtv6TD1Io6khYnzdoOmyzGqt9lf03zp0LQBLSMQaQ=
-git.kanosolution.net/kano/dbflex v1.2.1 h1:SllhA0qMcF1BHOYMdXIsIj1cbqohj2XgFp+7c4ZrZls=
 git.kanosolution.net/kano/dbflex v1.2.1/go.mod h1:kMbDllDjd+lwhCO4XRrCJP1kP0X46iPPrNG7hblrbcA=
+git.kanosolution.net/kano/dbflex v1.2.2 h1:OjYL02l1zriJNbWj3oTVSFOcHxPcaKqafkQM0OsAfxg=
+git.kanosolution.net/kano/dbflex v1.2.2/go.mod h1:wa4mqv+CP6fBRC6dVD4Z2473iQtiat8fWf96gBK9//E=
 git.kanosolution.net/kano/kaos v0.2.0/go.mod h1:NwMLC/+BhCXZ5Papa2nlsgay/PnGNd0hmz/v/q9oK6Y=
 git.kanosolution.net/kano/kaos v0.2.1 h1:61/5c1eIPqvmkeLsc41K0/4lk6fivH6aO8w7KyRQNow=
 git.kanosolution.net/kano/kaos v0.2.1/go.mod h1:xP4X/MUpDylSD8TavXFKNqb7fljbjjR2Aw8vA131xUM=
@@ -85,8 +86,9 @@ github.com/ariefdarmawan/datahub v0.2.2 h1:OEek3P3KexTG9sMQx9LzgO0eNeykbtluMRnOT
 github.com/ariefdarmawan/datahub v0.2.2/go.mod h1:/evipuY++BEb5b/HceMprpenYJPn78NP8Y0z4Gsercc=
 github.com/ariefdarmawan/flexmgo v0.1.15/go.mod h1:ZNVfnly+iMMBJ9sP142Kkt31CeQk+M8LLWYEfF59Qr8=
 github.com/ariefdarmawan/flexmgo v0.2.2/go.mod h1:uW09cBzpeI/4Az0j2iLO4Va2wxfJ5T+m9012fUzM7JM=
-github.com/ariefdarmawan/flexmgo v0.3.0 h1:UC38yWnCdfXrz8nCeHS9KjahLupWWSKz/PCB6rlTTV8=
 github.com/ariefdarmawan/flexmgo v0.3.0/go.mod h1:jhsXeMRcqEP7j+SG41WehSRoRVuWPhB2qf7IBSwpDQU=
+github.com/ariefdarmawan/flexmgo v0.3.1 h1:fPyuYjpKtdYBPtdc1nQouvn+p7qAFZKB5Ad/3ZfqGFg=
+github.com/ariefdarmawan/flexmgo v0.3.1/go.mod h1:6hOVghtG7tceoiTCc6KajMH5PBAyjwSd6TCswyO3Ou0=
 github.com/ariefdarmawan/flexpg v0.6.3/go.mod h1:aesluyV4eNRR5+bXiPr8iJSqeiBCPrvT2jfQg0CfKpQ=
 github.com/ariefdarmawan/flexpg v0.7.0 h1:Nd8CDPYajtUg0aZZqPSq5g7aD/4rk90u8Rj0mSbDiYc=
 github.com/ariefdarmawan/flexpg v0.7.0/go.mod h1:SHyKHnF02OwNjB+fpbSsribYZK52zUTL6qVKV8yGZIM=
@@ -346,7 +348,6 @@ github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfV
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/julienschmidt/httprouter v1.3.0/go.mod h1:JR6WtHb+2LUe8TCKY3cZOxFyyO8IZAc4RVcycCCAKdM=
 github.com/kanoteknologi/hd v0.0.0-20201106035827-cfd81094970e/go.mod h1:k3peJVyes0/PJLo0Oi7+v+iKCq5+3UhNBTidA21jDxo=
-github.com/kanoteknologi/hd v0.1.0 h1:QcbF9GTXiNrSMH62BSjrr5gG7I3dN/tgRrYYOOJrbDk=
 github.com/kanoteknologi/hd v0.1.0/go.mod h1:zP7OJYO6P95fI0MH6IuZn5D8INGNodm4XIqmNyObD4g=
 github.com/kanoteknologi/hd v0.1.2-0.20220618070001-7d207fd9ec86 h1:DyNPo55CHYPuYmrN6O/UY48k+hVXh31e6YM4w6c0Aaw=
 github.com/kanoteknologi/hd v0.1.2-0.20220618070001-7d207fd9ec86/go.mod h1:Mbk+OakhC98vMRjwH58SZH0Sd24cL89WcVCLYpO4foA=
