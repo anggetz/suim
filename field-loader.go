@@ -140,7 +140,7 @@ func toField(rt reflect.StructField) (Field, error) {
 		case "int", "float32", "float64":
 			form.Kind = "number"
 		case "time.Time", "*time.Time":
-			form.Kind = "date"
+			form.Kind = "datetime"
 		case "bool":
 			form.Kind = "checkbox"
 		case "[]string":
@@ -197,6 +197,7 @@ func toField(rt reflect.StructField) (Field, error) {
 	lengths := strings.Split(TagValue(tag, "form_length", "0,999"), ",")
 	form.MinLength = DefInt(DefSliceItem(lengths, 0, "0"), 0)
 	form.MaxLength = DefInt(DefSliceItem(lengths, 1, "9999"), 9999)
+	form.MultiRow = DefInt(TagValue(tag, "form_multi_row", "1"), 1)
 	form.Required = TagExist(tag, "form_required")
 	form.ReadOnly = TagValue(tag, "form_read_only", "0") == "1"
 	form.ReadOnlyOnEdit = TagValue(tag, "form_read_only_edit", "0") == "1"
@@ -210,6 +211,7 @@ func toField(rt reflect.StructField) (Field, error) {
 	if f.GridElement != "hide" {
 		grid := GridField{}
 		grid.Field = f.Form.Field
+		grid.Kind = f.Form.Kind
 		grid.Halign = TagValue(tag, "grid_halign", "start")
 		grid.Valign = TagValue(tag, "grid_valign", "start")
 		grid.Label = TagValue(tag, "grid_label", TagValue(tag, "label", Label(rt.Name, "l")))

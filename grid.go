@@ -2,6 +2,7 @@ package suim
 
 type GridField struct {
 	Field      string `json:"field"`
+	Kind       string `json:"kind"`
 	Label      string `json:"label"`
 	Halign     string `json:"halign"`
 	Valign     string `json:"valign"`

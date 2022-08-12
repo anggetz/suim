@@ -38,15 +38,16 @@ func autoFormSections(obj interface{}) ([]FormSection, error) {
 	}
 
 	lastSection := ""
+	sectionCount := 0
+	sectionNames := []string{}
 	for _, f := range fields {
-		if lastSection != f.Form.Section {
-			if !codekit.HasMember(f.Form.Section, res) {
-				res = append(res, FormSection{Title: f.Form.Section, Name: f.Form.Section, AutoCol: 1, ShowTitle: false})
-				lastSection = f.Form.Section
-			}
-		}
-	}
+		if lastSection != f.Form.Section && !codekit.HasMember(sectionNames, f.Form.Section) {
+			res = append(res, FormSection{ Title:f.Form.Section, Name: f.Form.Section, AutoCol: 1, ShowTitle: sectionCount > 0})
+			sectionNames = append(sectionNames, f.Form.Section)
+			lastSection = f.Form.Section
+		sectionCount++
+	}}
 
-	sections[typeString] = res
+	sections[typeString]=res
 	return res, nil
 }

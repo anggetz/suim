@@ -15,6 +15,7 @@ type FormField struct {
 	Disable        bool   `json:"disable"`
 	Required       bool   `json:"required"`
 	Multiple       bool   `json:"multiple"`
+	MultiRow       int    `json:"multiRow"`
 	MinLength      int    `json:"minLength"`
 	MaxLength      int    `json:"maxLength"`
 	ReadOnly       bool   `json:"readOnly"`
