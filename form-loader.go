@@ -130,5 +130,6 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 	mtx.Lock()
 	defer mtx.Unlock()
 	formConfigs[cfgName] = cfg
+
 	return cfg, nil
 }

@@ -2,9 +2,11 @@ module github.com/ariefdarmawan/suim
 
 go 1.18
 
+//replace git.kanosolution.net/koloni/crowd => d:\coding\lib\crowd
+
 require (
 	git.kanosolution.net/kano/kaos v0.2.1
-	git.kanosolution.net/koloni/crowd v0.1.0
+	git.kanosolution.net/koloni/crowd v0.1.1
 	github.com/kanoteknologi/hd v0.1.2-0.20220618070001-7d207fd9ec86
 	github.com/sebarcode/codekit v0.1.1
 	github.com/smartystreets/goconvey v1.7.2

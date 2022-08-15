@@ -58,15 +58,21 @@ func TestSuimForm(t *testing.T) {
 
 		convey.Convey("Check Sections", func() {
 			convey.So(len(cfg.Sections), convey.ShouldEqual, 2)
-			convey.So(len(cfg.Sections[0].Rows), convey.ShouldEqual, 4)
+			convey.So(len(cfg.Sections[0].Rows), convey.ShouldEqual, 5)
 
 			convey.Convey("Check Elements", func() {
-				convey.So(cfg.Sections[0].Rows[0][0].Label, convey.ShouldEqual, "Remember Me")
+				convey.So(cfg.Sections[0].Rows[0][0].Label, convey.ShouldEqual, "Remember me")
 				convey.So(cfg.Sections[0].Rows[0][0].Kind, convey.ShouldEqual, "checkbox")
 				convey.So(cfg.Sections[0].Rows[2][0].Kind, convey.ShouldEqual, "password")
 			})
 		})
 	})
+}
+
+func BenchmarkMemory(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		suim.CreateFormConfig(new(LoginModel))
+	}
 }
 
 func TestSuimGrid(t *testing.T) {
@@ -76,7 +82,7 @@ func TestSuimGrid(t *testing.T) {
 
 		convey.Convey("Check", func() {
 			convey.So(len(cfg.Fields), convey.ShouldEqual, 6)
-			convey.So(cfg.Fields[0].Label, convey.ShouldEqual, "Pin Code")
+			convey.So(cfg.Fields[0].Label, convey.ShouldEqual, "Pin code")
 		})
 	})
 }
@@ -87,11 +93,11 @@ func TestValidate(t *testing.T) {
 
 type LoginModel struct {
 	LoginId    string   `form_required:"1" form_length:"5,8"`
-	Password   string   `form_required:"1" form_control:"password"`
+	Password   string   `form_required:"1" form_kind:"password"`
 	RememberMe bool     `form_pos:"1,1"`
 	PinCode    int      `form_section:"Setting" grid_pos:"1"`
 	Data       []string `form_section:"Setting" grid:"hide"`
-	Company    string   `form_use_list:"1" form_use_list:"1" form_items:"C1|C2|C3"`
+	Company    string   `form_use_list:"1" form_items:"C1|C2|C3"`
 	Timeout    string   `form_use_list:"1" form_items:"30s|1m|5m|30m|60m|6h|12h"`
 }
 

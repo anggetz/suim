@@ -105,7 +105,10 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 
 	mtx.Lock()
 	defer mtx.Unlock()
-	objConfigs[t.String()] = objConfig{Obj: meta, Fields: fields}
+
+	objCfg := objConfig{Obj: meta, Fields: fields}
+	objConfigs[t.String()] = objCfg
+
 	return meta, fields, nil
 }
 
