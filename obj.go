@@ -42,12 +42,32 @@ func autoFormSections(obj interface{}) ([]FormSection, error) {
 	sectionNames := []string{}
 	for _, f := range fields {
 		if lastSection != f.Form.Section && !codekit.HasMember(sectionNames, f.Form.Section) {
-			res = append(res, FormSection{ Title:f.Form.Section, Name: f.Form.Section, AutoCol: 1, ShowTitle: sectionCount > 0})
+			res = append(res, FormSection{Title: f.Form.Section, Name: f.Form.Section, AutoCol: 1, ShowTitle: sectionCount > 0})
 			sectionNames = append(sectionNames, f.Form.Section)
 			lastSection = f.Form.Section
-		sectionCount++
-	}}
+			sectionCount++
+		}
+		if f.Form.Section != "" {
+			if f.Form.SectionShowTitle {
+				for idx, s := range res {
+					if s.Title == f.Form.Section {
+						s.ShowTitle = true
+						res[idx] = s
+					}
+				}
+			}
 
-	sections[typeString]=res
+			if f.Form.SectionAutoCol > 1 {
+				for idx, s := range res {
+					if s.Title == f.Form.Section {
+						s.AutoCol = f.Form.SectionAutoCol
+						res[idx] = s
+					}
+				}
+			}
+		}
+	}
+
+	sections[typeString] = res
 	return res, nil
 }

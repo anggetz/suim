@@ -135,7 +135,11 @@ func toField(rt reflect.StructField) (Field, error) {
 	}
 	form.Row, _ = strconv.Atoi(rowStr)
 	form.Col, _ = strconv.Atoi(colStr)
+
 	form.Section = TagValue(tag, "form_section", "General")
+	form.SectionShowTitle = TagValue(tag, "form_section_show_title", "0") == "1"
+	form.SectionAutoCol = DefInt(TagValue(tag, "form_section_auto_col", "1"), 1)
+
 	form.Kind = TagValue(tag, "form_kind", "")
 	if form.Kind == "" {
 		//fmt.Println(f.Field, form.Kind, f.DataType)

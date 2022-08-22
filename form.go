@@ -38,9 +38,11 @@ type FormField struct {
 	FixTitle   bool `json:"fixTitle"`
 	FixDetail  bool `json:"fixDetail"`
 
-	Section string `json:"section"`
-	Row     int    `json:"row"`
-	Col     int    `json:"col"`
+	Section          string `json:"section"`
+	SectionShowTitle bool   `json:"-"`
+	SectionAutoCol   int    `json:"-"`
+	Row              int    `json:"row"`
+	Col              int    `json:"col"`
 
 	LabelField string `json:"labelField"`
 }
