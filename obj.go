@@ -42,7 +42,7 @@ func autoFormSections(obj interface{}) ([]FormSection, error) {
 	sectionNames := []string{}
 	for _, f := range fields {
 		if lastSection != f.Form.Section && !codekit.HasMember(sectionNames, f.Form.Section) {
-			res = append(res, FormSection{Title: f.Form.Section, Name: f.Form.Section, AutoCol: 1, ShowTitle: sectionCount > 0})
+			res = append(res, FormSection{Title: f.Form.Section, Name: f.Form.Section, AutoCol: 1})
 			sectionNames = append(sectionNames, f.Form.Section)
 			lastSection = f.Form.Section
 			sectionCount++
