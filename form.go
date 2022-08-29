@@ -31,6 +31,8 @@ type FormField struct {
 	LookupKey     string   `json:"lookupKey"`
 	LookupLabels  []string `json:"lookupLabels"`
 	LookupSearchs []string `json:"lookupSearchs"`
+	LookupFormat1 string   `json:"lookupFormat1"`
+	LookupFormat2 string   `json:"lookupFormat2"`
 
 	ShowTitle  bool `json:"showTitle"`
 	ShowHint   bool `json:"showHint"`
@@ -45,6 +47,11 @@ type FormField struct {
 	Col              int    `json:"col"`
 
 	LabelField string `json:"labelField"`
+
+	//formatting attr
+	Decimal    int    `json:"decimal"`
+	DateFormat string `json:"dateFormat"`
+	Unit       string `json:"unit"`
 }
 
 type FormSection struct {

@@ -11,6 +11,11 @@ type GridField struct {
 	Width      string `json:"width"`
 	Pos        int    `json:"pos"`
 	ReadType   string `json:"readType"`
+
+	//formatting attr
+	Decimal    int    `json:"decimal"`
+	DateFormat string `json:"dateFormat"`
+	Unit       string `json:"unit"`
 }
 
 type GridSetting struct {

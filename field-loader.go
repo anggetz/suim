@@ -125,6 +125,8 @@ func toField(rt reflect.StructField) (Field, error) {
 	//if f.FormElement != "hide" {
 	form := FormField{}
 	form.AllowAdd = TagValue(tag, "form_allow_add", "") == "1"
+	form.Decimal = DefInt(TagValue(tag, "form_decimal", "0"), 0)
+	form.DateFormat = TagValue(tag, "form_date_format", "DD-MMM-YYYY hh:mm:ss Z")
 	form.Field = TagValue(tag, codekit.TagName(), rt.Name)
 	form.Hide = f.FormElement != "show"
 	pos := strings.Split(TagValue(tag, "form_pos", ","), ",")
@@ -139,6 +141,7 @@ func toField(rt reflect.StructField) (Field, error) {
 	form.Section = TagValue(tag, "form_section", "General")
 	form.SectionShowTitle = TagValue(tag, "form_section_show_title", "0") == "1"
 	form.SectionAutoCol = DefInt(TagValue(tag, "form_section_auto_col", "1"), 1)
+	form.Unit = TagValue(tag, "form_unit", "")
 
 	form.Kind = TagValue(tag, "form_kind", "")
 	if form.Kind == "" {
@@ -190,13 +193,22 @@ func toField(rt reflect.StructField) (Field, error) {
 		form.LookupUrl = lookups[0]
 		form.LookupKey = lookups[1]
 		form.LookupLabels = []string{form.LookupKey}
+
 		if len(lookups) > 2 {
 			form.LookupLabels = SplitNonEmpty(lookups[2], ",")
 		}
 
 		if len(lookups) > 3 {
-			form.LookupSearchs = SplitNonEmpty(lookups[3], ",")
-		} else {
+			form.LookupFormat1 = lookups[3]
+			form.LookupFormat2 = lookups[3]
+		}
+
+		if len(lookups) > 4 {
+			form.LookupFormat2 = lookups[4]
+		}
+
+		form.LookupSearchs = SplitNonEmpty(TagValue(tag, "form_lookup_search", ""), ",")
+		if len(form.LookupSearchs) == 0 {
 			form.LookupSearchs = form.LookupLabels
 		}
 	}
@@ -227,6 +239,9 @@ func toField(rt reflect.StructField) (Field, error) {
 		grid.Pos = DefInt(TagValue(tag, "grid_pos", "0"), 0)
 		grid.Width = TagValue(tag, "width", "")
 		grid.ReadType = f.GridElement
+		grid.Decimal = f.Form.Decimal
+		grid.DateFormat = f.Form.DateFormat
+		grid.Unit = f.Form.Unit
 		f.Grid = grid
 	}
 
