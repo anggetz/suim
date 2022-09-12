@@ -65,6 +65,7 @@ type FormSection struct {
 	ShowTitle bool          `json:"showTitle"`
 	Rows      [][]FormField `json:"rows"`
 	AutoCol   int           `json:"autoCol"`
+	Width     string        `json:"width"`
 }
 
 type FormSetting struct {

@@ -65,6 +65,15 @@ func autoFormSections(obj interface{}) ([]FormSection, error) {
 					}
 				}
 			}
+
+			if f.Form.SectionWidth != "" {
+				for idx, s := range res {
+					if s.Title == f.Form.Section {
+						s.Width = f.Form.SectionWidth
+						res[idx] = s
+					}
+				}
+			}
 		}
 	}
 

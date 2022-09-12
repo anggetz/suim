@@ -160,6 +160,7 @@ func toField(rt reflect.StructField) (Field, error) {
 			form.Kind = "text"
 		}
 	}
+
 	form.Disable = TagExist(tag, "form_disable")
 	form.FixDetail = TagExist(tag, "form_fix_detail")
 	form.FixTitle = TagExist(tag, "form_fix_title")
