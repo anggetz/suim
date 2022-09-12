@@ -114,7 +114,25 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 			}).Collect().Run(&sortedFs); e != nil {
 				return formRow{row, fs}
 			}
-			return formRow{row, sortedFs}
+			newSortedFs := []FormField{}
+			for _, fs := range sortedFs {
+				if fs.SpaceBefore > 0 {
+					for bi := 0; bi < fs.SpaceBefore; bi++ {
+						newSortedFs = append(newSortedFs, FormField{
+							Kind: "space",
+						})
+					}
+				}
+				newSortedFs = append(newSortedFs, fs)
+				if fs.SpaceAfter > 0 {
+					for bi := 0; bi < fs.SpaceAfter; bi++ {
+						newSortedFs = append(newSortedFs, FormField{
+							Kind: "space",
+						})
+					}
+				}
+			}
+			return formRow{row, newSortedFs}
 		}).Sort(func(f1, f2 formRow) bool {
 			return f1.Row < f2.Row
 		}).Map(func(fr formRow) []FormField {

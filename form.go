@@ -41,6 +41,7 @@ type FormField struct {
 	FixDetail  bool `json:"fixDetail"`
 
 	Section          string `json:"section"`
+	SectionWidth     string `json:"sectionWidth"`
 	SectionShowTitle bool   `json:"-"`
 	SectionAutoCol   int    `json:"-"`
 	Row              int    `json:"row"`
@@ -52,6 +53,10 @@ type FormField struct {
 	Decimal    int    `json:"decimal"`
 	DateFormat string `json:"dateFormat"`
 	Unit       string `json:"unit"`
+	Width      string `json:"width"`
+
+	SpaceBefore int `json:"spaceBefore"`
+	SpaceAfter  int `json:"spaceAfter"`
 }
 
 type FormSection struct {

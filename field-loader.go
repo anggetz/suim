@@ -139,6 +139,7 @@ func toField(rt reflect.StructField) (Field, error) {
 	form.Col, _ = strconv.Atoi(colStr)
 
 	form.Section = TagValue(tag, "form_section", "General")
+	form.SectionWidth = TagValue(tag, "form_section_width", "")
 	form.SectionShowTitle = TagValue(tag, "form_section_show_title", "0") == "1"
 	form.SectionAutoCol = DefInt(TagValue(tag, "form_section_auto_col", "1"), 1)
 	form.Unit = TagValue(tag, "form_unit", "")
@@ -224,6 +225,9 @@ func toField(rt reflect.StructField) (Field, error) {
 	form.ShowDetail = TagExist(tag, "form_hide_detail")
 	form.ShowHint = TagExist(tag, "form_hide_hint")
 	form.ShowTitle = TagExist(tag, "form_hide_title")
+	form.Width = TagValue(tag, "form_width", "")
+	form.SpaceBefore = DefInt(TagValue(tag, "form_space_before", "0"), 0)
+	form.SpaceAfter = DefInt(TagValue(tag, "form_space_after", "0"), 0)
 	f.Form = form
 	//}
 
@@ -237,7 +241,7 @@ func toField(rt reflect.StructField) (Field, error) {
 		grid.LabelField = TagValue(tag, "obj_label_field", "")
 		grid.Length = DefInt(TagValue(tag, "grid_length", "0"), 0)
 		grid.Pos = DefInt(TagValue(tag, "grid_pos", "0"), 0)
-		grid.Width = TagValue(tag, "width", "")
+		grid.Width = TagValue(tag, "grid_width", "")
 		grid.ReadType = f.GridElement
 		grid.Decimal = f.Form.Decimal
 		grid.DateFormat = f.Form.DateFormat
