@@ -32,14 +32,17 @@ func CreateGridConfig(obj interface{}) (*GridConfig, error) {
 	err = crowd.FromSlice(fields).Filter(func(f Field) bool {
 		return f.GridElement != "hide"
 	}).Map(func(f Field) GridField {
-		return f.Grid
+		g := f.Grid
+		g.Form = f.Form
+		return g
 	}).Sort(func(f1, f2 GridField) bool {
 		return f1.Pos < f2.Pos
 	}).Collect().Run(&cfgFields)
+
 	if err != nil {
 		return nil, err
 	}
-	cfg.Fields = cfgFields
 
+	cfg.Fields = cfgFields
 	return cfg, nil
 }

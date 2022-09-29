@@ -80,6 +80,23 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 			return nil, errors.New("fail retrieve fields for section " + section.Title + ". " + err.Error())
 		}
 
+		//-- calc before and after
+		newFields := []FormField{}
+		for _, f := range sectionFields {
+			if f.SpaceBefore > 0 {
+				for idx := 0; idx < f.SpaceBefore; idx++ {
+					newFields = append(newFields, FormField{Kind: "space"})
+				}
+			}
+			newFields = append(newFields, f)
+			if f.SpaceAfter > 0 {
+				for idx := 0; idx < f.SpaceAfter; idx++ {
+					newFields = append(newFields, FormField{Kind: "space"})
+				}
+			}
+		}
+		sectionFields = newFields
+
 		//-- assign row and col to empty field based on autocol
 		if section.AutoCol > 0 {
 			rowIndex := 1001
@@ -88,8 +105,9 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 				if f.Row == 0 {
 					f.Row = rowIndex
 					f.Col = colIndex + 1
-					colIndex++
-					if colIndex == section.AutoCol {
+					widthIncrease := DefInt(f.Width, 1)
+					colIndex += widthIncrease
+					if colIndex >= section.AutoCol {
 						colIndex = 0
 						rowIndex++
 					}
@@ -114,25 +132,28 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 			}).Collect().Run(&sortedFs); e != nil {
 				return formRow{row, fs}
 			}
-			newSortedFs := []FormField{}
-			for _, fs := range sortedFs {
-				if fs.SpaceBefore > 0 {
-					for bi := 0; bi < fs.SpaceBefore; bi++ {
-						newSortedFs = append(newSortedFs, FormField{
-							Kind: "space",
-						})
+			/*
+				newSortedFs := []FormField{}
+				for _, fs := range sortedFs {
+					if fs.SpaceBefore > 0 {
+						for bi := 0; bi < fs.SpaceBefore; bi++ {
+							newSortedFs = append(newSortedFs, FormField{
+								Kind: "space",
+							})
+						}
+					}
+					newSortedFs = append(newSortedFs, fs)
+					if fs.SpaceAfter > 0 {
+						for bi := 0; bi < fs.SpaceAfter; bi++ {
+							newSortedFs = append(newSortedFs, FormField{
+								Kind: "space",
+							})
+						}
 					}
 				}
-				newSortedFs = append(newSortedFs, fs)
-				if fs.SpaceAfter > 0 {
-					for bi := 0; bi < fs.SpaceAfter; bi++ {
-						newSortedFs = append(newSortedFs, FormField{
-							Kind: "space",
-						})
-					}
-				}
-			}
-			return formRow{row, newSortedFs}
+			*/
+			//newSortedFs := fs
+			return formRow{row, sortedFs}
 		}).Sort(func(f1, f2 formRow) bool {
 			return f1.Row < f2.Row
 		}).Map(func(fr formRow) []FormField {

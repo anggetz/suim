@@ -16,6 +16,8 @@ type GridField struct {
 	Decimal    int    `json:"decimal"`
 	DateFormat string `json:"dateFormat"`
 	Unit       string `json:"unit"`
+
+	Form FormField `json:"input"`
 }
 
 type GridSetting struct {
