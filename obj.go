@@ -1,6 +1,7 @@
 package suim
 
 import (
+	"math"
 	"reflect"
 
 	"github.com/sebarcode/codekit"
@@ -20,23 +21,24 @@ type ObjMeta struct {
 }
 
 var (
-	sections = map[string][]FormSection{}
+	sectionGroups = map[string][]FormSectionGroup{}
 )
 
-func autoFormSections(obj interface{}) ([]FormSection, error) {
+func autoFormSections(obj interface{}) ([]FormSectionGroup, error) {
 	v := reflect.Indirect(reflect.ValueOf(obj))
 	typeString := v.Type().String()
 
-	res, has := sections[typeString]
+	groups, has := sectionGroups[typeString]
 	if has {
-		return res, nil
+		return groups, nil
 	}
 
-	_, fields, err := ObjToFields(obj)
+	mt, fields, err := ObjToFields(obj)
 	if err != nil {
-		return res, err
+		return nil, err
 	}
 
+	res := []FormSection{}
 	lastSection := ""
 	sectionCount := 0
 	sectionNames := []string{}
@@ -77,6 +79,21 @@ func autoFormSections(obj interface{}) ([]FormSection, error) {
 		}
 	}
 
-	sections[typeString] = res
-	return res, nil
+	sizePerBlock := math.Ceil(float64(len(res)) / float64(mt.Form.SectionSize))
+
+	currentGroup := FormSectionGroup{}
+	for _, sect := range res {
+		currentGroup.Sections = append(currentGroup.Sections, sect)
+		if len(currentGroup.Sections) == int(sizePerBlock) {
+			groups = append(groups, currentGroup)
+			currentGroup = FormSectionGroup{}
+		}
+	}
+	if len(currentGroup.Sections) > 0 {
+		groups = append(groups, currentGroup)
+		currentGroup = FormSectionGroup{}
+	}
+
+	sectionGroups[typeString] = groups
+	return groups, nil
 }

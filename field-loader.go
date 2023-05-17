@@ -80,6 +80,8 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		SetIfStruct(&fs, "InitialMode", TagExist(tag, "form_initial_mode"), TagValue(tag, "form_initial_mode", "edit"))
 		SetIfStruct(&fs, "SubmitText", TagExist(tag, "form_submit_text"), TagValue(tag, "form_submit_text", "Save"))
 		SetIfStruct(&fs, "AutoCol", TagExist(tag, "form_auto_col"), DefInt(TagValue(tag, "form_auto_col", "1"), 1))
+		SetIfStruct(&fs, "SectionDirection", TagExist(tag, "section_direction"), TagValue(tag, "section_direction", ""))
+		SetIfStruct(&fs, "SectionSize", TagExist(tag, "section_size"), TagValue(tag, "section_s", ""))
 
 		//-- GridSetting
 		SetIfStruct(&gs, "IDField", gs.IDField == "" && TagValue(tag, "key", "") == "1", alias)

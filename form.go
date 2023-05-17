@@ -59,6 +59,10 @@ type FormField struct {
 	SpaceAfter  int `json:"spaceAfter"`
 }
 
+type FormSectionGroup struct {
+	Sections []FormSection `json:"sections"`
+}
+
 type FormSection struct {
 	Title     string        `json:"title"`
 	Name      string        `json:"name"`
@@ -79,9 +83,11 @@ type FormSetting struct {
 	HideCancelButton bool   `json:"hideCancelButton"`
 	SubmitText       string `json:"submitText"`
 	AutoCol          int    `json:"autoCol"`
+	SectionDirection string `json:"sectionDirection"`
+	SectionSize      int    `json:"sectionSize"`
 }
 
 type FormConfig struct {
-	Setting  FormSetting   `json:"setting"`
-	Sections []FormSection `json:"sections"`
+	Setting       FormSetting        `json:"setting"`
+	SectionGroups []FormSectionGroup `json:"sectionGroups"`
 }

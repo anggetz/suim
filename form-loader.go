@@ -41,10 +41,10 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 		func() {
 			defer func() {
 				if r := recover(); r != nil {
-					err = errors.New("error generating sections. " + r.(string))
+					err = fmt.Errorf("error generating sections. %v", r)
 				}
 			}()
-			cfg.Sections = outs[0].Interface().([]FormSection)
+			cfg.SectionGroups = outs[0].Interface().([]FormSectionGroup)
 		}()
 		if err != nil {
 			return nil, err
@@ -52,9 +52,8 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 	}
 
 	//-- assign auto section if no section found
-	if len(cfg.Sections) == 0 {
-		//cfg.Sections = []FormSection{{Title: "General", ShowTitle: false, AutoCol: cfg.Setting.AutoCol}}
-		if cfg.Sections, err = autoFormSections(obj); err != nil {
+	if len(cfg.SectionGroups) == 0 {
+		if cfg.SectionGroups, err = autoFormSections(obj); err != nil {
 			return nil, fmt.Errorf("error generating section. %s", err.Error())
 		}
 	}
@@ -68,102 +67,105 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 	}
 
 	//-- for each eaction arrange the fields
-	for idx, section := range cfg.Sections {
-		//-- get section fields
-		var sectionFields []FormField
-		if err = crowd.FromSlice(formFields).Filter(func(f FormField) bool {
-			if f.Section == "" && section.Title == "General" {
-				return true
-			}
-			return f.Section == section.Title
-		}).Collect().Run(&sectionFields); err != nil {
-			return nil, errors.New("fail retrieve fields for section " + section.Title + ". " + err.Error())
-		}
-
-		//-- calc before and after
-		newFields := []FormField{}
-		for _, f := range sectionFields {
-			if f.SpaceBefore > 0 {
-				for idx := 0; idx < f.SpaceBefore; idx++ {
-					newFields = append(newFields, FormField{Kind: "space"})
+	for gindex, sg := range cfg.SectionGroups {
+		for idx, section := range sg.Sections {
+			//-- get section fields
+			var sectionFields []FormField
+			if err = crowd.FromSlice(formFields).Filter(func(f FormField) bool {
+				if f.Section == "" && section.Title == "General" {
+					return true
 				}
+				return f.Section == section.Title
+			}).Collect().Run(&sectionFields); err != nil {
+				return nil, errors.New("fail retrieve fields for section " + section.Title + ". " + err.Error())
 			}
-			newFields = append(newFields, f)
-			if f.SpaceAfter > 0 {
-				for idx := 0; idx < f.SpaceAfter; idx++ {
-					newFields = append(newFields, FormField{Kind: "space"})
-				}
-			}
-		}
-		sectionFields = newFields
 
-		//-- assign row and col to empty field based on autocol
-		if section.AutoCol > 0 {
-			rowIndex := 1001
-			colIndex := 0
-			for idx, f := range sectionFields {
-				if f.Row == 0 {
-					f.Row = rowIndex
-					f.Col = colIndex + 1
-					widthIncrease := DefInt(f.Width, 1)
-					colIndex += widthIncrease
-					if colIndex >= section.AutoCol {
-						colIndex = 0
-						rowIndex++
+			//-- calc before and after
+			newFields := []FormField{}
+			for _, f := range sectionFields {
+				if f.SpaceBefore > 0 {
+					for idx := 0; idx < f.SpaceBefore; idx++ {
+						newFields = append(newFields, FormField{Kind: "space"})
 					}
 				}
-				sectionFields[idx] = f
+				newFields = append(newFields, f)
+				if f.SpaceAfter > 0 {
+					for idx := 0; idx < f.SpaceAfter; idx++ {
+						newFields = append(newFields, FormField{Kind: "space"})
+					}
+				}
 			}
-		}
+			sectionFields = newFields
 
-		//-- arrange the field
-		type formRow struct {
-			Row    int
-			Fields []FormField
-		}
-
-		var arrangeFields [][]FormField
-		if err = crowd.FromSlice(sectionFields).Group(func(f FormField) int {
-			return f.Row
-		}).Map(func(row int, fs []FormField) formRow {
-			var sortedFs []FormField
-			if e := crowd.FromSlice(fs).Sort(func(f1, f2 FormField) bool {
-				return f1.Col < f2.Col
-			}).Collect().Run(&sortedFs); e != nil {
-				return formRow{row, fs}
-			}
-			/*
-				newSortedFs := []FormField{}
-				for _, fs := range sortedFs {
-					if fs.SpaceBefore > 0 {
-						for bi := 0; bi < fs.SpaceBefore; bi++ {
-							newSortedFs = append(newSortedFs, FormField{
-								Kind: "space",
-							})
+			//-- assign row and col to empty field based on autocol
+			if section.AutoCol > 0 {
+				rowIndex := 1001
+				colIndex := 0
+				for idx, f := range sectionFields {
+					if f.Row == 0 {
+						f.Row = rowIndex
+						f.Col = colIndex + 1
+						widthIncrease := DefInt(f.Width, 1)
+						colIndex += widthIncrease
+						if colIndex >= section.AutoCol {
+							colIndex = 0
+							rowIndex++
 						}
 					}
-					newSortedFs = append(newSortedFs, fs)
-					if fs.SpaceAfter > 0 {
-						for bi := 0; bi < fs.SpaceAfter; bi++ {
-							newSortedFs = append(newSortedFs, FormField{
-								Kind: "space",
-							})
+					sectionFields[idx] = f
+				}
+			}
+
+			//-- arrange the field
+			type formRow struct {
+				Row    int
+				Fields []FormField
+			}
+
+			var arrangeFields [][]FormField
+			if err = crowd.FromSlice(sectionFields).Group(func(f FormField) int {
+				return f.Row
+			}).Map(func(row int, fs []FormField) formRow {
+				var sortedFs []FormField
+				if e := crowd.FromSlice(fs).Sort(func(f1, f2 FormField) bool {
+					return f1.Col < f2.Col
+				}).Collect().Run(&sortedFs); e != nil {
+					return formRow{row, fs}
+				}
+				/*
+					newSortedFs := []FormField{}
+					for _, fs := range sortedFs {
+						if fs.SpaceBefore > 0 {
+							for bi := 0; bi < fs.SpaceBefore; bi++ {
+								newSortedFs = append(newSortedFs, FormField{
+									Kind: "space",
+								})
+							}
+						}
+						newSortedFs = append(newSortedFs, fs)
+						if fs.SpaceAfter > 0 {
+							for bi := 0; bi < fs.SpaceAfter; bi++ {
+								newSortedFs = append(newSortedFs, FormField{
+									Kind: "space",
+								})
+							}
 						}
 					}
-				}
-			*/
-			//newSortedFs := fs
-			return formRow{row, sortedFs}
-		}).Sort(func(f1, f2 formRow) bool {
-			return f1.Row < f2.Row
-		}).Map(func(fr formRow) []FormField {
-			return fr.Fields
-		}).Collect().Run(&arrangeFields); err != nil {
-			return nil, errors.New("fail processing section " + section.Title + ". " + err.Error())
-		}
-		section.Rows = arrangeFields
+				*/
+				//newSortedFs := fs
+				return formRow{row, sortedFs}
+			}).Sort(func(f1, f2 formRow) bool {
+				return f1.Row < f2.Row
+			}).Map(func(fr formRow) []FormField {
+				return fr.Fields
+			}).Collect().Run(&arrangeFields); err != nil {
+				return nil, errors.New("fail processing section " + section.Title + ". " + err.Error())
+			}
+			section.Rows = arrangeFields
 
-		cfg.Sections[idx] = section
+			sg.Sections[idx] = section
+		}
+		cfg.SectionGroups[gindex] = sg
 	}
 
 	mtx.Lock()

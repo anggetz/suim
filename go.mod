@@ -2,7 +2,9 @@ module github.com/ariefdarmawan/suim
 
 go 1.18
 
-//replace git.kanosolution.net/koloni/crowd => d:\coding\lib\crowd
+replace github.com/ariefdarmawan/flexpg v0.7.0 => github.com/ariefdarmawan/flexpg v0.7.1
+
+replace git.kanosolution.net/koloni/crowd => git.kanosolution.net/koloni/crowd v0.1.1
 
 require (
 	git.kanosolution.net/kano/kaos v0.2.1

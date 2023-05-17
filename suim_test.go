@@ -53,10 +53,11 @@ func TestLabelToID(t *testing.T) {
 
 func TestSuimForm(t *testing.T) {
 	convey.Convey("Form", t, func() {
-		cfg, e := suim.CreateFormConfig(new(LoginModel))
+		cfgMain, e := suim.CreateFormConfig(new(LoginModel))
 		convey.So(e, convey.ShouldBeNil)
-
+		convey.So(len(cfgMain.SectionGroups), convey.ShouldBeGreaterThan, 0)
 		convey.Convey("Check Sections", func() {
+			cfg := cfgMain.SectionGroups[0]
 			convey.So(len(cfg.Sections), convey.ShouldEqual, 2)
 			convey.So(len(cfg.Sections[0].Rows), convey.ShouldEqual, 5)
 
@@ -101,8 +102,10 @@ type LoginModel struct {
 	Timeout    string   `form_use_list:"1" form_items:"30s|1m|5m|30m|60m|6h|12h"`
 }
 
-func (l *LoginModel) FormSections() []suim.FormSection {
-	return []suim.FormSection{
-		{Title: "General", AutoCol: 1},
-		{Title: "Setting", AutoCol: 1}}
+func (l *LoginModel) FormSections() []suim.FormSectionGroup {
+	return []suim.FormSectionGroup{{
+		Sections: []suim.FormSection{
+			{Title: "General", AutoCol: 1},
+			{Title: "Setting", AutoCol: 1}},
+	}}
 }
