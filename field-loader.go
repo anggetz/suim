@@ -50,6 +50,8 @@ func ObjToFields(obj interface{}) (*ObjMeta, []Field, error) {
 		InitialMode:      "edit",
 		SubmitText:       "Save",
 		AutoCol:          1,
+		SectionDirection: "col",
+		SectionSize:      1,
 	}
 
 	for i := 0; i < fieldNum; i++ {
