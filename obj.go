@@ -79,14 +79,17 @@ func autoFormSections(obj interface{}) ([]FormSectionGroup, error) {
 		}
 	}
 
-	sizePerBlock := math.Ceil(float64(len(res)) / float64(mt.Form.SectionSize))
+	resLen := len(res)
+	sizePerBlock := math.Floor(float64(resLen) / float64(mt.Form.SectionSize))
 
 	currentGroup := FormSectionGroup{}
+	groupCount := 1
 	for _, sect := range res {
 		currentGroup.Sections = append(currentGroup.Sections, sect)
-		if len(currentGroup.Sections) == int(sizePerBlock) {
+		if len(currentGroup.Sections) == int(sizePerBlock) && groupCount < mt.Form.SectionSize {
 			groups = append(groups, currentGroup)
 			currentGroup = FormSectionGroup{}
+			groupCount++
 		}
 	}
 	if len(currentGroup.Sections) > 0 {
