@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -56,7 +57,6 @@ func validateField(obj interface{}, fm Field) error {
 				rvElem = rvMain.Elem()
 			}
 		*/
-
 		switch fm.DataType {
 		case "string":
 			objStr := v.String()
@@ -86,13 +86,122 @@ func validateField(obj interface{}, fm Field) error {
 				}
 
 				if !found {
-					return fmt.Errorf("")
+					return fmt.Errorf("is not in list")
 				}
 			}
-
+		case "int":
+			objInt := v.Int()
+			if objInt == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+			if fm.Form.MinLength > 0 {
+				if len(strconv.Itoa(int(objInt))) < fm.Form.MinLength {
+					return fmt.Errorf("min length is %d", fm.Form.MinLength)
+				}
+			}
+			if fm.Form.MaxLength > 0 && len(strconv.Itoa(int(objInt))) > fm.Form.MaxLength {
+				return fmt.Errorf("max length is %d", fm.Form.MaxLength)
+			}
+			if fm.Form.UseList && fm.Form.LookupUrl == "" {
+				found := false
+			itemLoopInt:
+				for _, item := range fm.Form.Items {
+					if item.Text == fmt.Sprintf("%v", objInt) {
+						found = true
+						break itemLoopInt
+					}
+				}
+				if !found {
+					return fmt.Errorf("is not in list")
+				}
+			}
+		case "float64":
+			objFloat := v.Float()
+			if objFloat == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+			if fm.Form.UseList && fm.Form.LookupUrl == "" {
+				found := false
+			itemLoopFloat64:
+				for _, item := range fm.Form.Items {
+					if item.Text == fmt.Sprintf("%v", objFloat) {
+						found = true
+						break itemLoopFloat64
+					}
+				}
+				if !found {
+					return fmt.Errorf("is not in list")
+				}
+			}
+		case "float32":
+			objFloat := v.Float()
+			if objFloat == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+			if fm.Form.UseList && fm.Form.LookupUrl == "" {
+				found := false
+			itemLoopFloat32:
+				for _, item := range fm.Form.Items {
+					if item.Text == fmt.Sprintf("%v", objFloat) {
+						found = true
+						break itemLoopFloat32
+					}
+				}
+				if !found {
+					return fmt.Errorf("is not in list")
+				}
+			}
+		case "time.Time":
+			if v.IsZero() && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+		case "[]string":
+			if v.Len() == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+		case "[]int":
+			if v.Len() == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+		case "[]float64":
+			if v.Len() == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
+		case "[]float32":
+			if v.Len() == 0 && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
 		default:
 			//-- do nothing
+			// check nested struct
+			switch v.Kind() {
+			case reflect.Struct:
+				err := Validate(v.Interface())
+				return err
+			case reflect.Pointer:
+				err := Validate(v.Interface())
+				return err
+			case reflect.Slice:
+				sliceLen := v.Len()
+				if sliceLen != 0 {
+					errorTexts := []string{}
+					for i := 0; i < sliceLen; i++ {
+						if v.Index(i).Kind() == reflect.Struct {
+							err := Validate(v.Index(i).Interface())
+							if err != nil {
+								errorTexts = append(errorTexts, fmt.Sprintf("%v", err.Error()))
+							}
+						}
+					}
+					if len(errorTexts) != 0 {
+						return errors.New(strings.Join(errorTexts, " | "))
+					}
+				}
+			default:
+				//-- do nothing
+			}
 		}
+
 	}
 	return nil
 }
@@ -106,6 +215,5 @@ func getValue(obj interface{}, name string) (reflect.Value, bool) {
 	} else if rv.Kind() == reflect.Map {
 		return rv.MapIndex(reflect.ValueOf(name)), true
 	}
-
 	return reflect.Value{}, false
 }
