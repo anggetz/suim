@@ -90,6 +90,7 @@ func TestSuimGrid(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
+	joinDate := time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC)
 	convey.Convey("valid data", t, func() {
 		user := UserModel{
 			ID:       "userid1",
@@ -97,6 +98,7 @@ func TestValidate(t *testing.T) {
 			Email:    "john-doe@mail.com",
 			Age:      29,
 			BirthDay: time.Date(1999, 02, 01, 0, 0, 0, 0, time.UTC),
+			JoinDate: &joinDate,
 			Company:  "C1",
 			Address: &Address{
 				Street:  "123 Main St",
@@ -117,6 +119,7 @@ func TestValidate(t *testing.T) {
 			Email:    "john-doe@mail.com",
 			Age:      29,
 			BirthDay: time.Date(1999, 02, 01, 0, 0, 0, 0, time.UTC),
+			JoinDate: &joinDate,
 			Company:  "C1",
 			Address: &Address{
 				Street:  "",
@@ -151,12 +154,13 @@ func (l *LoginModel) FormSections() []suim.FormSectionGroup {
 }
 
 type UserModel struct {
-	ID       string    `form_required:"1" form_length:"5,8"`
-	Name     string    `form_required:"1"`
-	Email    string    `form_required:"1"`
-	Age      int       `form_required:"1"`
-	BirthDay time.Time `form_required:"1"`
-	Company  string    `form_required:"1" form_use_list:"1" form_items:"C1|C2|C3"`
+	ID       string     `form_required:"1" form_length:"5,8"`
+	Name     string     `form_required:"1"`
+	Email    string     `form_required:"1"`
+	Age      int        `form_required:"1"`
+	BirthDay time.Time  `form_required:"1"`
+	JoinDate *time.Time `form_required:"1"`
+	Company  string     `form_required:"1" form_use_list:"1" form_items:"C1|C2|C3"`
 	Address  *Address
 	Phones   []string `form_required:"1"`
 	Domains  []Domains

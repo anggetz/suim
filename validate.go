@@ -155,6 +155,10 @@ func validateField(obj interface{}, fm Field) error {
 			if v.IsZero() && fm.Form.Required {
 				return errors.New("could not be nil or empty")
 			}
+		case "*time.Time":
+			if v.IsZero() && fm.Form.Required {
+				return errors.New("could not be nil or empty")
+			}
 		case "[]string":
 			if v.Len() == 0 && fm.Form.Required {
 				return errors.New("could not be nil or empty")
