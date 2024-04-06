@@ -2,6 +2,7 @@ package suim_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/ariefdarmawan/suim"
 	"github.com/smartystreets/goconvey/convey"
@@ -89,7 +90,49 @@ func TestSuimGrid(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-
+	joinDate := time.Date(2023, 01, 01, 0, 0, 0, 0, time.UTC)
+	convey.Convey("valid data", t, func() {
+		user := UserModel{
+			ID:       "userid1",
+			Name:     "john doe",
+			Email:    "john-doe@mail.com",
+			Age:      29,
+			BirthDay: time.Date(1999, 02, 01, 0, 0, 0, 0, time.UTC),
+			JoinDate: &joinDate,
+			Company:  "C1",
+			Address: &Address{
+				Street:  "123 Main St",
+				City:    "Anytown",
+				State:   "CA",
+				ZipCode: "12345",
+			},
+			Phones:  []string{"123-456-7890", "987-654-3210"},
+			Domains: []Domains{{ID: 1, Name: "A1"}, {ID: 2, Name: "A2"}},
+		}
+		err := suim.Validate(&user)
+		convey.So(err, convey.ShouldBeNil)
+	})
+	convey.Convey("not valid data", t, func() {
+		user := UserModel{
+			ID:       "userid1",
+			Name:     "",
+			Email:    "john-doe@mail.com",
+			Age:      29,
+			BirthDay: time.Date(1999, 02, 01, 0, 0, 0, 0, time.UTC),
+			JoinDate: &joinDate,
+			Company:  "C1",
+			Address: &Address{
+				Street:  "",
+				City:    "Anytown",
+				State:   "CA",
+				ZipCode: "12345",
+			},
+			Phones:  []string{"123-456-7890", "987-654-3210"},
+			Domains: []Domains{{ID: 1, Name: "A1"}, {ID: 2, Name: "A2"}},
+		}
+		err := suim.Validate(&user)
+		convey.So(err, convey.ShouldBeError)
+	})
 }
 
 type LoginModel struct {
@@ -107,5 +150,35 @@ func (l *LoginModel) FormSections() []suim.FormSectionGroup {
 		Sections: []suim.FormSection{
 			{Title: "General", AutoCol: 1},
 			{Title: "Setting", AutoCol: 1}},
+	}}
+}
+
+type UserModel struct {
+	ID       string     `form_required:"1" form_length:"5,8"`
+	Name     string     `form_required:"1"`
+	Email    string     `form_required:"1"`
+	Age      int        `form_required:"1"`
+	BirthDay time.Time  `form_required:"1"`
+	JoinDate *time.Time `form_required:"1"`
+	Company  string     `form_required:"1" form_use_list:"1" form_items:"C1|C2|C3"`
+	Address  *Address
+	Phones   []string `form_required:"1"`
+	Domains  []Domains
+}
+type Address struct {
+	Street  string `form_required:"1"`
+	City    string `form_required:"1"`
+	State   string `form_required:"1"`
+	ZipCode string `form_required:"1"`
+}
+type Domains struct {
+	ID   int    `form_required:"1"`
+	Name string `form_required:"1"`
+}
+
+func (l *UserModel) FormSections() []suim.FormSectionGroup {
+	return []suim.FormSectionGroup{{
+		Sections: []suim.FormSection{
+			{Title: "General", AutoCol: 1}},
 	}}
 }
