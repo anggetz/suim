@@ -66,6 +66,20 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 		}
 	}
 
+	_, err = ArrangeFormConfigFields(cfg, formFields...)
+	if err != nil {
+		return nil, err
+	}
+
+	mtx.Lock()
+	defer mtx.Unlock()
+	formConfigs[cfgName] = cfg
+
+	return cfg, nil
+}
+
+func ArrangeFormConfigFields(cfg *FormConfig, formFields ...FormField) (*FormConfig, error) {
+	var err error
 	//-- for each eaction arrange the fields
 	for gindex, sg := range cfg.SectionGroups {
 		for idx, section := range sg.Sections {
@@ -146,10 +160,6 @@ func CreateFormConfig(obj interface{}) (*FormConfig, error) {
 		}
 		cfg.SectionGroups[gindex] = sg
 	}
-
-	mtx.Lock()
-	defer mtx.Unlock()
-	formConfigs[cfgName] = cfg
 
 	return cfg, nil
 }
