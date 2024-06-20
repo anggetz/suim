@@ -3,6 +3,7 @@
 API Documentation
 
 No|Nama Tag|Nilai|Deskripsi
+--- | --- | --- | --- |
 1|form_required|1 atau 0|Menentukan field mandatory atau tidak
 2|form_section|string|Menentukan kelompok dari field
 3|form_kind|datetime,number,text|Menentukan jenis input dari field
